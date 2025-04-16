@@ -28,7 +28,7 @@ export default function App() {
         invoiceNumber: "",
         invoiceDate: "",
         orderDate: "",
-        paymentMethod: "Andere",
+        paymentMethod: "",
 
         // Transfer details
         transferDate: "",
