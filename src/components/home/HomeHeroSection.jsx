@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { jsPDF } from "jspdf"
+import { YesNoRadio } from "../ui/yes-no-radio"
 
 export default function App() {
+    const [agreed, setAgreed] = useState(false);
     const [formData, setFormData] = useState({
         // Company info
         companyName: "",
@@ -22,6 +24,7 @@ export default function App() {
         Inhaber: "",
         IbanNum: "",
         BIC: "",
+        dueDate: "",
 
 
         // Invoice details
@@ -32,7 +35,9 @@ export default function App() {
 
         // Transfer details
         transferDate: "",
+        transferTime: "",
         returnDate: "",
+        returnTime: "",
         passengerName: "",
         fromLocation: "",
         toLocation: "",
@@ -70,9 +75,10 @@ export default function App() {
 
         // Customer info (left side)
         doc.setFontSize(10)
-        doc.text(formData.passengerName, 20, 60)
-        doc.text(formData.street, 20, 65)
-        doc.text(formData.postalCodeCity, 20, 70)
+        doc.text(formData.companyName, 20, 60)
+        doc.text(formData.contactPerson, 20, 65)
+        doc.text(formData.street, 20, 70)
+        doc.text(formData.postalCodeCity, 20, 75)
 
         // Invoice details (right side)
         doc.setFontSize(10)
@@ -107,13 +113,13 @@ export default function App() {
         doc.setFont("helvetica", "bold");
         doc.text("Date:", 20, startY);
         doc.setFont("helvetica", "normal");
-        doc.text(`${formData.transferDate}`, 30, startY);
+        doc.text(`${formData.transferDate} @ ${formData.transferTime}`, 30, startY);
 
         // Date
         doc.setFont("helvetica", "bold");
         doc.text("Return Date:", 20, startY + 5);
         doc.setFont("helvetica", "normal");
-        doc.text(`${formData.returnDate}`, 42, startY + 5);
+        doc.text(`${formData.returnDate} @ ${formData.returnTime}`, 42, startY + 5);
 
         // Passenger Name
         doc.setFont("helvetica", "bold");
@@ -183,20 +189,21 @@ export default function App() {
         doc.setDrawColor(0, 0, 0)
         doc.line(20, startY + 60, 190, startY + 60)
 
-        // Bank Detail Field
-        doc.setFont("helvetica", "bold");
-        doc.text("Anmerkungen", 20, startY + 65);
-
-        doc.setFont("helvetica", "normal");
-        doc.text(`Bitte auf das folgende Konto überweisen:`, 20, startY + 70)
-        doc.text(`Bank: ${formData.bankName}`, 20, startY + 75)
-        doc.text(`Inhaber: ${formData.Inhaber}`, 20, startY + 80)
-        doc.text(`IBAN: ${formData.IbanNum}`, 20, startY + 85)
-        doc.text(`BIC: ${formData.BIC}`, 20, startY + 90)
-        doc.setFont("helvetica", "bold");
-        doc.text(`Zahlungshinweis:`, 20, startY + 95)
-        doc.setFont("helvetica", "normal");
-        doc.text(`Zahlbar bis 16.03.2024 ohne Abzug von Skonto`, 20, startY + 100)
+        if (agreed) {
+            // Bank Detail Field
+            doc.setFont("helvetica", "bold");
+            doc.text("Anmerkungen", 20, startY + 100);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Bitte auf das folgende Konto überweisen:`, 20, startY + 105)
+            doc.text(`Bank: ${formData.bankName}`, 20, startY + 110)
+            doc.text(`Inhaber: ${formData.Inhaber}`, 20, startY + 115)
+            doc.text(`IBAN: ${formData.IbanNum}`, 20, startY + 120)
+            doc.text(`BIC: ${formData.BIC}`, 20, startY + 125)
+            doc.setFont("helvetica", "bold");
+            doc.text(`Zahlungshinweis:`, 20, startY + 130)
+            doc.setFont("helvetica", "normal");
+            doc.text(`Zahlbar bis ${formData.dueDate} ohne Abzug von Skonto`, 20, startY + 135)
+        }
 
         // Totals section
         const price = Number.parseFloat(formData.price) || 0
@@ -375,12 +382,34 @@ export default function App() {
                                             />
                                         </div>
                                         <div className="space-y-2">
+                                            <Label htmlFor="transferTime">Transfer Time</Label>
+                                            <Input
+                                                type="time"
+                                                id="transferTime"
+                                                name="transferTime"
+                                                value={formData.transferTime}
+                                                onChange={handleChange}
+                                                placeholder="e.g. Februar 26, 2025"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
                                             <Label htmlFor="returnDate">Return Date</Label>
                                             <Input
                                                 type="date"
                                                 id="returnDate"
                                                 name="returnDate"
                                                 value={formData.returnDate}
+                                                onChange={handleChange}
+                                                placeholder="e.g. Februar 28, 2025"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="returnTime">Return Time</Label>
+                                            <Input
+                                                type="time"
+                                                id="returnTime"
+                                                name="returnTime"
+                                                value={formData.returnTime}
                                                 onChange={handleChange}
                                                 placeholder="e.g. Februar 28, 2025"
                                             />
@@ -502,7 +531,14 @@ export default function App() {
 
                                 <div>
                                     <h3 className="text-lg font-medium mb-4 text-red-600">Bank Information</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="mb-2">
+                                        <YesNoRadio
+                                            label="Do you agree?"
+                                            defaultValue={false}
+                                            onChange={(val) => setAgreed(val)}
+                                        />
+                                    </div>
+                                    {agreed && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="bankName">Bank Name</Label>
                                             <Input
@@ -543,7 +579,18 @@ export default function App() {
                                                 placeholder="e.g. 74211 Leingarten"
                                             />
                                         </div>
-                                    </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="dueDate">Due Date</Label>
+                                            <Input
+                                                type="date"
+                                                id="dueDate"
+                                                name="dueDate"
+                                                value={formData.dueDate}
+                                                onChange={handleChange}
+                                                placeholder="e.g. 16.03.2024"
+                                            />
+                                        </div>
+                                    </div>}
                                 </div>
 
 
