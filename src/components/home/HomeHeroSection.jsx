@@ -21,10 +21,10 @@ export default function App() {
         postalCodeCity: "",
 
         // Company info
-        bankName: "",
-        Inhaber: "",
-        IbanNum: "",
-        BIC: "",
+        // bankName: "",
+        // Inhaber: "",
+        // IbanNum: "",
+        // BIC: "",
         dueDate: "",
 
 
@@ -94,8 +94,11 @@ export default function App() {
         // Values - right aligned
         doc.setTextColor(0, 0, 0)
         doc.text(formData.invoiceNumber, 190, 60, { align: "right" })
-        doc.text(formData.invoiceDate, 190, 65, { align: "right" })
-        doc.text(formData.orderDate, 190, 70, { align: "right" })
+        const formattedInvoiceDate = new Date(formData.invoiceDate).toLocaleDateString("de-DE");
+        const formattedOrderDate = new Date(formData.orderDate).toLocaleDateString("de-DE");        
+        doc.text(formattedInvoiceDate, 190, 65, { align: "right" });
+        doc.text(formattedOrderDate, 190, 70, { align: "right" });
+        
         doc.text(formData.paymentMethod, 190, 75, { align: "right" })
 
         // Transfer table header
@@ -114,14 +117,19 @@ export default function App() {
         doc.setFont("helvetica", "bold");
         doc.text("Date:", 20, startY);
         doc.setFont("helvetica", "normal");
-        doc.text(`${formData.transferDate} ${formData.transferTime && '@ ' + formData.transferTime}`, 30, startY);
+        const formattedDate = new Date(formData.transferDate).toLocaleDateString("de-DE");
+        const formattedTime = formData.transferTime;
+        doc.text(`${formattedDate}${formattedTime ? ' @ ' + formattedTime : ''}`, 30, startY);
+
 
         if (returnBoolean) {
             // Return Date
             doc.setFont("helvetica", "bold");
             doc.text("Return Date:", 20, startY + 5);
             doc.setFont("helvetica", "normal");
-            doc.text(`${formData.returnDate} ${formData.returnTime && '@ ' + formData.returnTime}`, 42, startY + 5);
+            const formattedDate = new Date(formData.returnDate).toLocaleDateString("de-DE");
+            const formattedTime = formData.returnTime;
+            doc.text(`${formattedDate}${formattedTime && ' @ ' + formattedTime}`, 42, startY + 5);
         }
 
         // Passenger Name
@@ -195,40 +203,41 @@ export default function App() {
         if (agreed) {
             // Bank Detail Field
             doc.setFont("helvetica", "bold");
-            doc.text("Anmerkungen", 20, startY + 100);
+            doc.text("Anmerkungen", 20, startY + 120);
             doc.setFont("helvetica", "normal");
-            doc.text(`Bitte auf das folgende Konto überweisen:`, 20, startY + 105)
-            doc.text(`Bank: ${formData.bankName}`, 20, startY + 110)
-            doc.text(`Inhaber: ${formData.Inhaber}`, 20, startY + 115)
-            doc.text(`IBAN: ${formData.IbanNum}`, 20, startY + 120)
-            doc.text(`BIC: ${formData.BIC}`, 20, startY + 125)
+            doc.text(`Bitte auf das folgende Konto überweisen:`, 20, startY + 125)
+            doc.text(`Bank: Frankfurter Sparkasse`, 20, startY + 130)
+            doc.text(`Inhaber: Muhammad Afzal`, 20, startY + 135)
+            doc.text(`IBAN: DE70 5005 0201 0200 7650 19`, 20, startY + 140)
+            doc.text(`BIC: HELADEF1822`, 20, startY + 145)
             doc.setFont("helvetica", "bold");
-            doc.text(`Zahlungshinweis:`, 20, startY + 130)
+            doc.text(`Zahlungshinweis:`, 20, startY + 150)
             doc.setFont("helvetica", "normal");
-            doc.text(`Zahlbar bis ${formData.dueDate} ohne Abzug von Skonto`, 20, startY + 135)
+            const formattedDate = new Date(formData.dueDate).toLocaleDateString("de-DE");
+            doc.text(`Zahlbar bis ${formattedDate} ohne Abzug von Skonto`, 20, startY + 155);
         }
 
         // Totals section
         const price = Number.parseFloat(formData.price) || 0
-        const vat = price * 0.19 // Assuming 19% VAT
+        const cost = (formData.price / 119 * 19);
 
         // Zwischensumme
         doc.setFont("helvetica", "bold");
         doc.text("Zwischensumme", 140, startY + 70)
         doc.setFont("helvetica", "normal");
-        doc.text(`${price.toFixed(2)}€`, 190, startY + 70, { align: "right" })
+        doc.text(`${price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`, 190, startY + 70, { align: "right" });
 
         // Border line
         doc.line(140, startY + 75, 190, startY + 75)
 
-        const cost = (formData.price / 119 * 19);
         const actualCost = (formData.price - cost)
-        doc.text(`Im Gesamtbetrag von ${price.toFixed(2)} € (Netto: ${actualCost.toFixed(2)} €) sind USt 19 % (${cost.toFixed(2)} €) enthalten.`, 20, startY + 95);
+        doc.text(`Im Gesamtbetrag von ${price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € (Netto: ${actualCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €) sind USt 19 % (${cost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €) enthalten.`, 20, startY + 95);
+
 
         // Gesamt
         doc.setFont("helvetica", "bold");
         doc.text("Gesamt", 140, startY + 80)
-        doc.text(`${price.toFixed(2)}€ (inkl. ${vat.toFixed(2)}€`, 190, startY + 80, { align: "right" })
+        doc.text(`${price.toLocaleString("de-DE", { minimumFractionDigits: 2 })}€ (inkl. ${cost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€)`, 190, startY + 80, { align: "right" });
         doc.text("Umsatzsteuer)", 190, startY + 85, { align: "right" })
 
         // Border line
@@ -555,7 +564,7 @@ export default function App() {
                                             onChange={(val) => setAgreed(val)}
                                         />
                                     </div>
-                                    {agreed && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* {agreed && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="bankName">Bank Name</Label>
                                             <Input
@@ -596,17 +605,18 @@ export default function App() {
                                                 placeholder="e.g. 74211 Leingarten"
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="dueDate">Due Date</Label>
-                                            <Input
-                                                type="date"
-                                                id="dueDate"
-                                                name="dueDate"
-                                                value={formData.dueDate}
-                                                onChange={handleChange}
-                                                placeholder="e.g. 16.03.2024"
-                                            />
-                                        </div>
+                                     
+                                    </div>} */}
+                                    {agreed && <div className="space-y-2">
+                                        <Label htmlFor="dueDate">Due Date</Label>
+                                        <Input
+                                            type="date"
+                                            id="dueDate"
+                                            name="dueDate"
+                                            value={formData.dueDate}
+                                            onChange={handleChange}
+                                            placeholder="e.g. 16.03.2024"
+                                        />
                                     </div>}
                                 </div>
 
