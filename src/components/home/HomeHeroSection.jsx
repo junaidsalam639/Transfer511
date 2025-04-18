@@ -375,6 +375,8 @@ export default function App() {
                                                     <SelectItem value="Barzahlung">Barzahlung</SelectItem>
                                                     <SelectItem value="Überweisung">Überweisung</SelectItem>
                                                     <SelectItem value="Kreditkarte">Kreditkarte</SelectItem>
+                                                    <SelectItem value="Paypal">Paypal</SelectItem>
+                                                    <SelectItem value="Credit Card (Stripe)">Credit Card (Stripe)</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
