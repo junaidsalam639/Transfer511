@@ -66,7 +66,7 @@ export default function App() {
         const doc = new jsPDF()
 
         // Add logo
-        // doc.addImage("/assets/logo.png", "PNG", 20, 20, 40, 20)
+        doc.addImage("/assets/logo.png", "PNG", 20, 20, 40, 20)
 
         // Add RECHNUNG title
         doc.setFontSize(14)
@@ -250,7 +250,7 @@ export default function App() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-orange-600 text-white p-6">
+            <header className="bg-orange-600 text-white p-2">
                 <div className="container mx-auto">
                     <motion.h1
                         className="text-3xl font-bold"
@@ -258,7 +258,7 @@ export default function App() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        Transfer511
+                        <img src="/assets/logo.png" className="w-40" alt="" />
                     </motion.h1>
                 </div>
             </header>
