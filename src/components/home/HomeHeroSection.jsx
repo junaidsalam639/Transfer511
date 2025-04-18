@@ -12,6 +12,7 @@ import { YesNoRadio } from "../ui/yes-no-radio"
 
 export default function App() {
     const [agreed, setAgreed] = useState(false);
+    const [returnBoolean, setReturnBoolean] = useState(false);
     const [formData, setFormData] = useState({
         // Company info
         companyName: "",
@@ -113,13 +114,15 @@ export default function App() {
         doc.setFont("helvetica", "bold");
         doc.text("Date:", 20, startY);
         doc.setFont("helvetica", "normal");
-        doc.text(`${formData.transferDate} @ ${formData.transferTime}`, 30, startY);
+        doc.text(`${formData.transferDate} ${formData.transferTime && '@ ' + formData.transferTime}`, 30, startY);
 
-        // Date
-        doc.setFont("helvetica", "bold");
-        doc.text("Return Date:", 20, startY + 5);
-        doc.setFont("helvetica", "normal");
-        doc.text(`${formData.returnDate} @ ${formData.returnTime}`, 42, startY + 5);
+        if (returnBoolean) {
+            // Return Date
+            doc.setFont("helvetica", "bold");
+            doc.text("Return Date:", 20, startY + 5);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${formData.returnDate} ${formData.returnTime && '@ ' + formData.returnTime}`, 42, startY + 5);
+        }
 
         // Passenger Name
         doc.setFont("helvetica", "bold");
@@ -217,6 +220,10 @@ export default function App() {
 
         // Border line
         doc.line(140, startY + 75, 190, startY + 75)
+
+        const cost = (formData.price / 119 * 19);
+        const actualCost = (formData.price - cost)
+        doc.text(`Im Gesamtbetrag von ${price.toFixed(2)} € (Netto: ${actualCost.toFixed(2)} €) sind USt 19 % (${cost.toFixed(2)} €) enthalten.`, 20, startY + 95);
 
         // Gesamt
         doc.setFont("helvetica", "bold");
@@ -392,28 +399,38 @@ export default function App() {
                                                 placeholder="e.g. Februar 26, 2025"
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="returnDate">Return Date</Label>
-                                            <Input
-                                                type="date"
-                                                id="returnDate"
-                                                name="returnDate"
-                                                value={formData.returnDate}
-                                                onChange={handleChange}
-                                                placeholder="e.g. Februar 28, 2025"
+                                        <div className="col-span-2">
+                                            <YesNoRadio
+                                                defaultValue={false}
+                                                onChange={(val) => setReturnBoolean(val)}
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="returnTime">Return Time</Label>
-                                            <Input
-                                                type="time"
-                                                id="returnTime"
-                                                name="returnTime"
-                                                value={formData.returnTime}
-                                                onChange={handleChange}
-                                                placeholder="e.g. Februar 28, 2025"
-                                            />
-                                        </div>
+                                        {returnBoolean && (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="returnDate">Return Date</Label>
+                                                    <Input
+                                                        type="date"
+                                                        id="returnDate"
+                                                        name="returnDate"
+                                                        value={formData.returnDate}
+                                                        onChange={handleChange}
+                                                        placeholder="e.g. Februar 28, 2025"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="returnTime">Return Time</Label>
+                                                    <Input
+                                                        type="time"
+                                                        id="returnTime"
+                                                        name="returnTime"
+                                                        value={formData.returnTime}
+                                                        onChange={handleChange}
+                                                        placeholder="e.g. Februar 28, 2025"
+                                                    />
+                                                </div>
+                                            </>)}
+
                                         <div className="space-y-2">
                                             <Label htmlFor="passengerName">Passenger Name</Label>
                                             <Input
